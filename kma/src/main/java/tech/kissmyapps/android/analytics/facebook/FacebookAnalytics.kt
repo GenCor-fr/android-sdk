@@ -70,7 +70,15 @@ class FacebookAnalytics(
         )
     }
 
-    fun getAnonymousID(): String {
+    internal fun getAnonymousID(): String {
         return AppEventsLogger.getAnonymousAppDeviceGUID(applicationContext)
+    }
+
+    internal fun getUserData(): String {
+        return AppEventsLogger.getUserData()
+    }
+
+    internal fun getUserId(): String? {
+        return AppEventsLogger.getUserID()
     }
 }

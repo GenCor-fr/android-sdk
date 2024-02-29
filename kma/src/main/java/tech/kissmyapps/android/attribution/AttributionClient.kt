@@ -83,11 +83,10 @@ internal class AttributionClientImpl(
                 InstallApplicationRequestBody(
                     userId = userId,
                     appVersion = attributionDataSource.getApplicationVersion()!!,
-                    sdkVersion = "1.0.0-beta01", // TODO: SDK version
+                    sdkVersion = "1.0.0",
                     osVersion = Build.VERSION.RELEASE,
                     appsFlyerUUID = appsFlyerUID,
                     isLimitAdTrackingEnabled = isLimitAdTrackingEnabled
-                    // TODO: Facebook anonId
                 )
             )
 

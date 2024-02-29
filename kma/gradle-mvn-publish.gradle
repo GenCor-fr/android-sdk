@@ -5,7 +5,7 @@ publishing {
         release(MavenPublication) {
             groupId "tech.kissmyapps"
             artifactId "android-sdk"
-            version "1.0.0-beta02"
+            version "1.0.0"
 
             afterEvaluate {
                 from components.release
