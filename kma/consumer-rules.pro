@@ -9,9 +9,6 @@
 -keep class com.crashlytics.** { *; }
 -dontwarn com.crashlytics.**
 
-# RevenutCat
--keep class com.revenuecat.purchases.** { *; }
-
 # AppsFlyer
 -keep class com.appsflyer.** { *; }
 
@@ -81,5 +78,3 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
-
--dontwarn java.lang.invoke.StringConcatFactory

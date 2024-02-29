@@ -5,7 +5,7 @@ publishing {
         release(MavenPublication) {
             groupId "tech.kissmyapps"
             artifactId "android-sdk"
-            version "1.0.0-rc01"
+            version "1.0.0-beta02"
 
             afterEvaluate {
                 from components.release
@@ -15,10 +15,10 @@ publishing {
 
     repositories {
         maven {
-            url "https://git.netpeak.net/api/v4/projects/5401/packages/maven"
+            url "https://git.netpeak.net/api/v4/projects/6017/packages/maven"
             credentials(HttpHeaderCredentials) {
                 name = "Private-Token"
-                value = "glpat-V2sGX_CQpw-ji4EPth2d"
+                value = "glpat-Uv_V8VcuuHmzXyyFNnzX"
             }
             authentication {
                 header(HttpHeaderAuthentication)

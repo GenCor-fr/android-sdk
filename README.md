@@ -2,22 +2,27 @@
 
 ## Installation
 
-```gradle
+```gradle.kts
+// settings.gradle.kts
 repositories {
   ...
   maven {
-    url "https://git.netpeak.net/api/v4/projects/PROJECT_ID/packages/maven"
-    credentials(HttpHeaderCredentials) {
+    url = uri("https://git.netpeak.net/api/v4/projects/6017/packages/maven")
+
+    credentials(HttpHeaderCredentials::class) {
         name = "Private-Token"
-        value = "TOKEN"
+        value = "glpat-yK1E68yPkpxaViQ-5fG-"
     }
+
     authentication {
-        header(HttpHeaderAuthentication)
+        create<HttpHeaderAuthentication>("header")
     }
-    name "Gitlab"
-  }
+
+    name = "Gitlab"
+    }
 }
 
+// build.gradle.kts (Module :app)
 dependencies {
   implementation 'tech.kissmyapps.android:1.0.0'
 }
