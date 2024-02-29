@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "tech.kissmyapps.android.attribution.data";
+option java_multiple_files = true;
+
+message AttributionInfo {
+    string uuid = 1;
+    string network = 2;
+    string networkType = 3;
+    string networkSubtype = 4;
+    string campaignName = 5;
+    string adGroupName = 6;
+    string adGroupName = 7;
+    string creativeName = 8;
+    bool attributed = 9;
+}
