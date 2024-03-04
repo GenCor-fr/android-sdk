@@ -46,7 +46,7 @@ android {
     }
 }
 
-apply(from = "$projectDir/gradle-mvn-publish.gradle")
+//apply(from = "$projectDir/gradle-mvn-publish.gradle")
 
 dependencies {
     api("androidx.fragment:fragment-ktx:1.6.2")

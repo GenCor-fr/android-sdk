@@ -10,7 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
+        /*maven {
             url = uri("https://git.netpeak.net/api/v4/projects/6017/packages/maven")
 
             credentials(HttpHeaderCredentials::class) {
@@ -23,7 +23,7 @@ dependencyResolutionManagement {
             }
 
             name = "Gitlab"
-        }
+        }*/
     }
 }
 

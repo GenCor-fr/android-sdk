@@ -2,29 +2,19 @@
 
 ## Installation
 
+Run following command in your project terminal:
+```
+git submodule add https://git.netpeak.net/monti_sdl/Laguna_Mobile/kma-android-sdk.git
+```
+
 ```gradle.kts
-// settings.gradle.kts
-repositories {
-  ...
-  maven {
-    url = uri("https://git.netpeak.net/api/v4/projects/6017/packages/maven")
-
-    credentials(HttpHeaderCredentials::class) {
-        name = "Private-Token"
-        value = "glpat-yK1E68yPkpxaViQ-5fG-"
-    }
-
-    authentication {
-        create<HttpHeaderAuthentication>("header")
-    }
-
-    name = "Gitlab"
-    }
-}
+// Add to the end of settings.gradle.kts
+include ':kma'
+project(':kma').projectDir = new File('../kma-android-sdk/kma')
 
 // build.gradle.kts (Module :app)
 dependencies {
-  implementation 'tech.kissmyapps.android:1.0.0'
+    implementation project(':kma')
 }
 ```
 
