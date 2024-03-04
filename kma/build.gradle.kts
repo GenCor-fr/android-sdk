@@ -49,7 +49,7 @@ android {
 //apply(from = "$projectDir/gradle-mvn-publish.gradle")
 
 dependencies {
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    api("androidx.fragment:fragment-ktx:1.6.2")
 
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
