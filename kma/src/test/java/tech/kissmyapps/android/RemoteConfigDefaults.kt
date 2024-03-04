@@ -46,10 +46,10 @@ class RemoteConfigDefaults {
             .setMinimalSupportedAppVersion(71)
             .param(key = "ab_paywall_soft", sources = MediaSource.all())
 
-        val default = defaults.values["android_subscription_screen_style_h"]
+        val default = defaults.values["android_subscription_screen_style_hard"]
 
         val remoteConfigValue = RemoteConfigValueImpl.from(
-            key = "android_subscription_screen_style_h",
+            key = "android_subscription_screen_style_hard",
             value = "true",
             source = FirebaseRemoteConfig.VALUE_SOURCE_DEFAULT,
             mediaSource = MediaSource.ORGANIC,
