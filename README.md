@@ -32,28 +32,34 @@ dependencies {
 
 ```kotlin
 // On Application class
-KissMyAppsSdk.configure(
-    KissMyAppsConfiguration(
-        applicationContext,
-        appsFlyerDevKey = BuildConfig.APPSFLYER_DEV_KEY,
-        amplitudeApiKey = BuildConfig.AMPLITUDE_API_KEY,
-        revenueCatApiKey = BuildConfig.REVENUE_CAT_API_KEY,
-        attributionApiKey = BuildConfig.TLM_SUBSCRIPTION_API_KEY,
-        facebookConfiguration = FacebookConfiguration(
-            applicationId = BuildConfig.FB_APP_ID,
-            clientToken = BuildConfig.FB_CLIENT_TOKEN
-        ),
-        remoteConfigDefaults = RemoteConfigDefaults()
-            .setGeneralPaywall(PaywallTypes.VERTICAL_BOXES)
-            .setFacebookPaywall(PaywallTypes.VERTICAL_BOXES)
-            .setGoogleRedirectPaywall(PaywallTypes.VERTICAL_BOXES)
-            .setMinimalSupportedAppVersion(BuildConfig.VERSION_CODE)
-            .param(
-                key = RemoteConfigs.AB_PAYWALL_SOFT,
-                sources = MediaSource.all()
-            ), // custom A/B test remote config
-    )
-)
+class MainApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        KissMyAppsSdk.configure(
+            KissMyAppsConfiguration(
+                applicationContext,
+                appsFlyerDevKey = "YOUR_APPSFLYER_DEV_KEY",
+                amplitudeApiKey = "YOUR_AMPLITUDE_API_KEY",
+                revenueCatApiKey = "YOUR_REVENUE_CAT_API_KEY",
+                attributionApiKey = "YOUR_TLM_SUBSCRIPTION_API_KEY",
+                facebookConfiguration = FacebookConfiguration(
+                    applicationId = "YOUR_FB_APP_ID",
+                    clientToken = "YOUR_FB_CLIENT_TOKEN"
+                ),
+                remoteConfigDefaults = RemoteConfigDefaults()
+                    .setGeneralPaywall("YOUR_GENERAL_PAYWALL_NAME")
+                    .setFacebookPaywall("YOUR_GENERAL_FACEBOOK_NAME")
+                    .setGoogleRedirectPaywall("YOUR_GENERAL_GOOGLE_REDIRECT_NAME")
+                    .setMinimalSupportedAppVersion(0)
+                    .param(
+                        key = "YOUR_CUSTOM_AB_CONFIG",
+                        sources = MediaSource.all()
+                    ), // custom A/B test remote config
+            )
+        )
+
+    }
+}
 
 // Start SDK and keep splash screen
 class MainViewModel : ViewModel() {

@@ -1,4 +1,4 @@
-package tech.kissmyapps.android
+package tech.kissmyapps.android.sample
 
 import android.app.Activity
 import android.app.Application

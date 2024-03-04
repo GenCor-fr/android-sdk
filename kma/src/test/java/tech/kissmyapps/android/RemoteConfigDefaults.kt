@@ -32,7 +32,7 @@ class RemoteConfigDefaults {
 
         assert(fbResult == "fb_3vertical_boxes")
 
-        val paywallHard = defaults.values["android_subscription_screen_style_h"]
+        val paywallHard = defaults.values["android_subscription_screen_style_hard"]
         assert(paywallHard?.getValue("true", MediaSource.ORGANIC) == "true")
     }
 

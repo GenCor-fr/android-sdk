@@ -29,6 +29,9 @@ android {
     }
 
     buildTypes {
+        debug {
+        }
+
         create("develop") {
         }
 
@@ -46,6 +49,8 @@ android {
 apply(from = "$projectDir/gradle-mvn-publish.gradle")
 
 dependencies {
+    api("androidx.fragment:fragment-ktx:1.6.2")
+
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
