@@ -49,7 +49,7 @@ android {
 //apply(from = "$projectDir/gradle-mvn-publish.gradle")
 
 dependencies {
-    api("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
 
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
@@ -65,7 +65,7 @@ dependencies {
 
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 
-    api(platform("com.google.firebase:firebase-bom:32.7.3"))
+    implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
     implementation("com.google.firebase:firebase-config-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
