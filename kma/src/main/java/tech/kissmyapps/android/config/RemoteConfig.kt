@@ -24,8 +24,4 @@ interface RemoteConfig {
     fun rateUsPrimaryShow(): Boolean
 
     fun rateUsSecondaryShow(): Boolean
-
-    companion object {
-        const val NONE_VALUE = "none"
-    }
 }

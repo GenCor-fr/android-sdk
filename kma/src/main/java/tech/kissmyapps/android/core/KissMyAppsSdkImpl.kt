@@ -8,13 +8,14 @@ import com.android.installreferrer.api.ReferrerDetails
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import tech.kissmyapps.android.ConfigurationRequestListener
 import tech.kissmyapps.android.KissMyAppsSdk
 import tech.kissmyapps.android.analytics.Analytics
 import tech.kissmyapps.android.analytics.af.AppsFlyerAnalytics
@@ -27,8 +28,6 @@ import tech.kissmyapps.android.attribution.network.AttributionService
 import tech.kissmyapps.android.common.measureTime
 import tech.kissmyapps.android.config.FirebaseRemoteConfig
 import tech.kissmyapps.android.config.RemoteConfig
-import tech.kissmyapps.android.config.RemoteConfig.Companion.NONE_VALUE
-import tech.kissmyapps.android.config.model.RemoteConfigParams
 import tech.kissmyapps.android.config.model.RemoteConfigParams.MIN_SUPPORTED_APP_VERSION
 import tech.kissmyapps.android.config.model.RemoteConfigValue
 import tech.kissmyapps.android.core.model.AttributionData
@@ -40,16 +39,16 @@ import tech.kissmyapps.android.purchases.Purchases
 import tech.kissmyapps.android.purchases.PurchasesFacade
 import tech.kissmyapps.android.purchases.PurchasesPreferencesDataStore
 import tech.kissmyapps.android.purchases.logger.TLMPurchaseEventLogger
+import tech.kissmyapps.android.purchases.model.CustomerInfo
 import tech.kissmyapps.android.purchases.revenuecat.RevenueCatConfiguration
 import tech.kissmyapps.android.purchases.revenuecat.RevenueCatPurchases
 import timber.log.Timber
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 internal class KissMyAppsSdkImpl constructor(
     private val applicationContext: Context,
     override val purchases: Purchases,
     firebaseAnalytics: FirebaseAnalytics,
+    private val appUpdateManager: AppUpdateManager,
     private val firebaseRemoteConfig: FirebaseRemoteConfig,
     private val amplitudeAnalytics: AmplitudeAnalytics,
     private val appsFlyerAnalytics: AppsFlyerAnalytics,
@@ -60,7 +59,6 @@ internal class KissMyAppsSdkImpl constructor(
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : KissMyAppsSdk {
     private val applicationScope = CoroutineScope(SupervisorJob() + coroutineDispatcher)
-    private val appUpdateManager = AppUpdateManager(applicationContext)
 
     override val analytics: Analytics = amplitudeAnalytics
     override val remoteConfig: RemoteConfig = firebaseRemoteConfig
@@ -77,28 +75,13 @@ internal class KissMyAppsSdkImpl constructor(
         }
     }
 
-    override fun start(
-        isFirstLaunch: Boolean?,
-        configurationRequestListener: ConfigurationRequestListener
-    ) {
+    override suspend fun start(isFirstLaunch: Boolean?): ConfigurationResult {
         val configurationResult = configurationResult
         if (configurationResult != null) {
-            configurationRequestListener.onSuccess(configurationResult)
-            return
+            return configurationResult
         }
 
-        applicationScope.launch {
-            val result = getConfigurationResult(isFirstLaunch)
-            configurationRequestListener.onSuccess(result)
-        }
-    }
-
-    override suspend fun start(isFirstLaunch: Boolean?): ConfigurationResult {
-        return suspendCoroutine { continuation ->
-            start(isFirstLaunch) { result ->
-                continuation.resume(result)
-            }
-        }
+        return getConfigurationResult(isFirstLaunch)
     }
 
     override fun getConfigurationResult(): ConfigurationResult? {
@@ -106,12 +89,8 @@ internal class KissMyAppsSdkImpl constructor(
     }
 
     private suspend fun getConfigurationResult(isFirstLaunch: Boolean?): ConfigurationResult {
-        if (configurationResult != null) {
-            configurationResult!!
-        }
-
         return withContext(coroutineDispatcher) {
-            measureTime("Configuration") {
+            measureTime("CONFIGURATION") {
                 val isFirstAppLaunch = isFirstLaunch == true || preferencesDataStore.isFirstLaunch()
 
                 if (isFirstAppLaunch) {
@@ -127,41 +106,26 @@ internal class KissMyAppsSdkImpl constructor(
                     properties = mapOf("first_launch" to isFirstLaunch)
                 )
 
-                launch {
+                applicationScope.launch {
                     attributionClient.getAttributionInfo()
                 }
 
-                val remoteConfigsDeferred = async {
-                    measureTime("RemoteConfig") {
-                        firebaseRemoteConfig.fetchAndActivate()
-                        remoteConfig.getAll()
-                    }
-                }
+                val remoteConfigsDeferred = getRemoteConfigs()
 
                 val attributionDeferred = async {
-                    measureTime("Attribution") {
-                        getAttributionData()
-                    }
+                    getAttributionData()
                 }
 
-                val customerInfoDeferred = async(SupervisorJob()) {
-                    measureTime("Purchases") {
-                        try {
-                            val result = purchases.getCustomerInfo()
-                            result
-                        } catch (e: Throwable) {
-                            null
-                        }
-                    }
-                }
+                val customerInfoDeferred = getCustomerInfo()
 
                 val attributionData = attributionDeferred.await()
+                Timber.d(attributionData.toString())
 
-                val remoteConfigs = withTimeoutOrNull(MAX_TIMEOUT_TIME) {
+                val remoteConfigs = withTimeoutOrNull(MAX_TIMEOUT_IN_MILLIS) {
                     remoteConfigsDeferred.await()
                 }
 
-                val customerInfo = withTimeoutOrNull(MAX_TIMEOUT_TIME) {
+                val customerInfo = withTimeoutOrNull(MAX_TIMEOUT_IN_MILLIS) {
                     customerInfoDeferred.await()
                 }
 
@@ -213,9 +177,9 @@ internal class KissMyAppsSdkImpl constructor(
                 val value = it.value.rawValue
 
                 if (!shouldSend || value.isNullOrBlank()) {
-                    NONE_VALUE
-                } else if (value.contains("${NONE_VALUE}_")) {
-                    NONE_VALUE
+                    "none"
+                } else if (value.contains("none_")) {
+                    "none"
                 } else {
                     value
                 }
@@ -227,21 +191,48 @@ internal class KissMyAppsSdkImpl constructor(
         amplitudeAnalytics.logEvent(AnalyticsEvents.TEST_DISTRIBUTION, allProperties)
     }
 
+    private fun getRemoteConfigs(): Deferred<Map<String, RemoteConfigValue>> {
+        return applicationScope.async {
+            measureTime("Remote configs") {
+                firebaseRemoteConfig.fetchAndActivate()
+                val configs = remoteConfig.getAll()
+
+                Timber.d(
+                    "Configs: \n%s.",
+                    configs
+                        .mapValues { it.value.rawValue }
+                        .entries
+                        .joinToString(",\n") { "${it.key} = ${it.value}" }
+                )
+
+                configs
+            }
+        }
+    }
+
+    private fun getCustomerInfo(): Deferred<CustomerInfo?> {
+        return applicationScope.async {
+            measureTime("Customer info") {
+                try {
+                    val result = purchases.getCustomerInfo()
+                    result
+                } catch (e: Throwable) {
+                    null
+                }
+            }
+        }
+    }
+
     private suspend fun getAttributionData(): AttributionData? {
-        return withContext(coroutineDispatcher) {
-            val installReferrerAttDeferred = async {
-                getInstallReferrerAttribution()
-            }
+        return measureTime("Attribution data") {
+            val installReferrerAttDeferred = getInstallReferrerAttribution()
+            val appsFlyerAttDeferred = getAppsFlyerAttribution()
 
-            val appsFlyerAttDeferred = async {
-                getAppsFlyerAttribution()
-            }
-
-            val installReferrerAtt = withTimeoutOrNull(MAX_TIMEOUT_TIME) {
+            val installReferrerAtt = withTimeout(MAX_TIMEOUT_IN_MILLIS) {
                 installReferrerAttDeferred.await()
             }
 
-            val appsFlyerAtt = withTimeoutOrNull(MAX_TIMEOUT_TIME) {
+            val appsFlyerAtt = withTimeoutOrNull(MAX_TIMEOUT_IN_MILLIS) {
                 appsFlyerAttDeferred.await()
             }
 
@@ -249,34 +240,45 @@ internal class KissMyAppsSdkImpl constructor(
         }
     }
 
-    private suspend fun getAppsFlyerAttribution(): AttributionData? {
-        return measureTime("AppsFlyer ATT") {
-            var attributionData = preferencesDataStore.getAttributionData()
+    private fun getAppsFlyerAttribution(): Deferred<AttributionData?> {
+        return applicationScope.async {
+            measureTime("AppsFlyer ATT") {
+                var attributionData = preferencesDataStore.getAttributionData()
 
-            if (attributionData == null) {
-                val conversionData = appsFlyerAnalytics.awaitConversionData()
+                Timber.d("Preferences AF data = $attributionData")
 
-                if (!conversionData.isNullOrEmpty()) {
-                    attributionData = AttributionData.fromConversionData(conversionData)
-                    preferencesDataStore.setAttributionData(attributionData)
+                if (attributionData == null) {
+                    val conversionData = appsFlyerAnalytics.awaitConversionData()
+
+                    if (!conversionData.isNullOrEmpty()) {
+                        attributionData = AttributionData.fromConversionData(conversionData)
+                        preferencesDataStore.setAttributionData(attributionData)
+                    }
+
+                    Timber.d("AF data = $attributionData")
                 }
-            }
 
-            attributionData
+                attributionData
+            }
         }
     }
 
-    private suspend fun getInstallReferrerAttribution(): AttributionData? {
-        return measureTime("Install Referrer ATT") {
-            var installReferrer: String? = preferencesDataStore.getInstallReferrer()
+    private fun getInstallReferrerAttribution(): Deferred<AttributionData?> {
+        return applicationScope.async {
+            measureTime("Install Referrer ATT") {
+                var installReferrer: String? = preferencesDataStore.getInstallReferrer()
 
-            if (installReferrer == null) {
-                val referrerDetails = getReferrerDetails(applicationContext) ?: return null
-                installReferrer = referrerDetails.installReferrer
-                preferencesDataStore.setInstallReferrer(installReferrer)
+                if (installReferrer == null) {
+                    val referrerDetails = getReferrerDetails(applicationContext)
+                    installReferrer = referrerDetails?.installReferrer
+
+                    if (installReferrer != null) {
+                        preferencesDataStore.setInstallReferrer(installReferrer)
+                    }
+                }
+
+                AttributionData.fromInstallReferrer(installReferrer)
             }
-
-            AttributionData.fromInstallReferrer(installReferrer)
         }
     }
 
@@ -309,7 +311,7 @@ internal class KissMyAppsSdkImpl constructor(
     }
 
     internal companion object {
-        const val MAX_TIMEOUT_TIME = 6_500L
+        const val MAX_TIMEOUT_IN_MILLIS = 6_500L
 
         fun create(configuration: KissMyAppsConfiguration): KissMyAppsSdk {
             val attributionClient = AttributionClient.create(
@@ -361,6 +363,7 @@ internal class KissMyAppsSdkImpl constructor(
             return KissMyAppsSdkImpl(
                 applicationContext = configuration.context,
                 firebaseAnalytics = FirebaseAnalytics(),
+                appUpdateManager = AppUpdateManager(configuration.context),
                 firebaseRemoteConfig = FirebaseRemoteConfig(configuration.remoteConfigDefaults),
                 attributionClient = attributionClient,
                 facebookAnalytics = facebookAnalytics,

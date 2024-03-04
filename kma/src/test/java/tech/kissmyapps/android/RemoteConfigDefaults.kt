@@ -14,6 +14,7 @@ class RemoteConfigDefaults {
             .setGeneralPaywall("3vertical_boxes")
             .setFacebookPaywall("3vertical_boxes")
             .setGoogleRedirectPaywall("3vertical_boxes")
+            .setSubsScreenStyleFull(true)
             .setMinimalSupportedAppVersion(71)
             .param(key = "ab_paywall_soft", sources = MediaSource.all())
 
@@ -30,6 +31,33 @@ class RemoteConfigDefaults {
         )
 
         assert(fbResult == "fb_3vertical_boxes")
+
+        val paywallHard = defaults.values["android_subscription_screen_style_h"]
+        assert(paywallHard?.getValue("true", MediaSource.ORGANIC) == "true")
+    }
+
+    @Test
+    fun test_paywall_hard_value() {
+        val defaults = RemoteConfigDefaults()
+            .setGeneralPaywall("3vertical_boxes")
+            .setFacebookPaywall("3vertical_boxes")
+            .setGoogleRedirectPaywall("3vertical_boxes")
+            .setSubsScreenStyleHard(false)
+            .setMinimalSupportedAppVersion(71)
+            .param(key = "ab_paywall_soft", sources = MediaSource.all())
+
+        val default = defaults.values["android_subscription_screen_style_h"]
+
+        val remoteConfigValue = RemoteConfigValueImpl.from(
+            key = "android_subscription_screen_style_h",
+            value = "true",
+            source = FirebaseRemoteConfig.VALUE_SOURCE_DEFAULT,
+            mediaSource = MediaSource.ORGANIC,
+            default = default
+        )
+
+        val value = remoteConfigValue.asBoolean()
+        assert(value)
     }
 
     @Test

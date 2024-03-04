@@ -27,15 +27,6 @@ interface KissMyAppsSdk {
 
     /**
      * Starts the SDK.
-     * @param configurationRequestListener: listener for getting the request status.
-     */
-    fun start(
-        isFirstLaunch: Boolean? = null,
-        configurationRequestListener: ConfigurationRequestListener
-    )
-
-    /**
-     * Starts the SDK.
      * @return A configuration result.
      */
     suspend fun start(isFirstLaunch: Boolean? = null): ConfigurationResult

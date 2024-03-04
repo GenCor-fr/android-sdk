@@ -27,6 +27,20 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    buildTypes {
+        create("develop") {
+        }
+
+        release {
+            isMinifyEnabled = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
 }
 
 apply(from = "$projectDir/gradle-mvn-publish.gradle")
@@ -46,9 +60,8 @@ dependencies {
 
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 
-    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    api(platform("com.google.firebase:firebase-bom:32.7.3"))
     implementation("com.google.firebase:firebase-config-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
     implementation("com.google.android.gms:play-services-ads-identifier:18.0.1")

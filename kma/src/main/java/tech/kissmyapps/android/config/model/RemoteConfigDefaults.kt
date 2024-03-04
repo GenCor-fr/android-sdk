@@ -1,6 +1,5 @@
 package tech.kissmyapps.android.config.model
 
-import tech.kissmyapps.android.config.RemoteConfig
 import tech.kissmyapps.android.config.model.RemoteConfigParams.AB_PAYWALL_FACEBOOK
 import tech.kissmyapps.android.config.model.RemoteConfigParams.AB_PAYWALL_GENERAL
 import tech.kissmyapps.android.config.model.RemoteConfigParams.AB_PAYWALL_GOOGLE_REDIRECT
@@ -84,9 +83,11 @@ class RemoteConfigDefaults {
         sources: Set<MediaSource>? = null
     ): RemoteConfigDefaults {
         val defaultValue = if (sources.isNullOrEmpty()) {
-            value?.toString() ?: RemoteConfig.NONE_VALUE
-        } else {
+            value?.toString() ?: ""
+        } else if (value != null) {
             "none_$value"
+        } else {
+            "none"
         }
 
         values[key] = RemoteConfigDefault(key, defaultValue, sources)
