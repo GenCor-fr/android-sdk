@@ -178,7 +178,7 @@ internal class KissMyAppsSdkImpl constructor(
 
                 if (!shouldSend || value.isNullOrBlank()) {
                     "none"
-                } else if (value.contains("none_")) {
+                } else if (value.startsWith("none_")) {
                     "none"
                 } else {
                     value

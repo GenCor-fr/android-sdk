@@ -4,6 +4,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import org.junit.Test
 import tech.kissmyapps.android.config.model.RemoteConfigDefault
 import tech.kissmyapps.android.config.model.RemoteConfigDefaults
+import tech.kissmyapps.android.config.model.RemoteConfigParams
 import tech.kissmyapps.android.config.model.RemoteConfigValueImpl
 import tech.kissmyapps.android.core.model.MediaSource
 
@@ -17,6 +18,10 @@ class RemoteConfigDefaults {
             .setSubsScreenStyleFull(true)
             .setMinimalSupportedAppVersion(71)
             .param(key = "ab_paywall_soft", sources = MediaSource.all())
+
+        val abPaywallGeneral = defaults.values[RemoteConfigParams.AB_PAYWALL_GENERAL]?.defaultValue
+
+        assert(abPaywallGeneral == "none_3vertical_boxes")
 
         val organicResult = defaults.values["android_ab_paywall_general"]!!.getValue(
             "none_3vertical_boxes",

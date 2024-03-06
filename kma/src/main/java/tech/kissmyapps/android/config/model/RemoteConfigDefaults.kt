@@ -36,7 +36,7 @@ class RemoteConfigDefaults {
     fun setGeneralPaywall(value: String) = param(
         AB_PAYWALL_GENERAL,
         value,
-        MediaSource.all()
+        setOf(MediaSource.ORGANIC)
     )
 
     fun setFacebookPaywall(value: String) = param(

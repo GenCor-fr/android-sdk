@@ -128,7 +128,7 @@ internal class RemoteConfigValueImpl internal constructor(
         ): RemoteConfigValue {
             val rawValue = try {
                 val remoteValue = value.asString()
-                default?.getValue(remoteValue, mediaSource) ?: remoteValue
+                remoteValue
             } catch (e: Throwable) {
                 null
             }
