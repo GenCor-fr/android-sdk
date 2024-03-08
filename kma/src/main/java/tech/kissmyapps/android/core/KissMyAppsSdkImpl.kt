@@ -92,7 +92,10 @@ internal class KissMyAppsSdkImpl constructor(
         return withContext(coroutineDispatcher) {
             measureTime("CONFIGURATION") {
 
-                if (isFirstLaunch != false && preferencesDataStore.isFirstLaunch()) {
+                val isFirstAppLaunch = isFirstLaunch != false
+                        && preferencesDataStore.isFirstLaunch()
+
+                if (isFirstAppLaunch) {
                     amplitudeAnalytics.logEvent(AnalyticsEvents.FIRST_LAUNCH)
                     amplitudeAnalytics.flush()
                     amplitudeAnalytics.sendCohort()
