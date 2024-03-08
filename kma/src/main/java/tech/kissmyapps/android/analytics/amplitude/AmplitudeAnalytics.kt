@@ -60,7 +60,7 @@ internal class AmplitudeAnalytics(
         val calendar = Calendar.getInstance()
 
         val identify = Identify()
-            .setOnce(AnalyticsProperties.COHORT_YEAR, calendar[Calendar.YEAR])
+            .setOnce(AnalyticsProperties.COHORT_DAY, calendar[Calendar.DAY_OF_YEAR])
             .setOnce(AnalyticsProperties.COHORT_MONTH, calendar[Calendar.MONTH] + 1)
             .setOnce(AnalyticsProperties.COHORT_WEEK, calendar[Calendar.WEEK_OF_YEAR])
 

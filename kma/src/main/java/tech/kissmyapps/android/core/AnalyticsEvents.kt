@@ -10,7 +10,7 @@ internal object AnalyticsEvents {
 }
 
 internal object AnalyticsProperties {
-    const val COHORT_YEAR = "cohort_year"
+    const val COHORT_DAY = "cohort_day"
     const val COHORT_WEEK = "cohort_week"
     const val COHORT_MONTH = "cohort_month"
 
