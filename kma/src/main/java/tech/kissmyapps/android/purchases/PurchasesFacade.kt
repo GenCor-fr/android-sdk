@@ -46,7 +46,6 @@ internal class PurchasesFacade(
             appsFlyerAnalytics.logPurchase(purchase)
             amplitudeAnalytics.logPurchase(purchase)
             firebaseAnalytics.logPurchase(purchase)
-            facebookAnalytics.logPurchase(purchase)
 
             purchase
         } catch (exception: PurchasesException) {
