@@ -99,7 +99,7 @@ internal class KissMyAppsSdkImpl constructor(
                     amplitudeAnalytics.logEvent(AnalyticsEvents.FIRST_LAUNCH)
                     amplitudeAnalytics.flush()
                     amplitudeAnalytics.sendCohort()
-                    preferencesDataStore.setFirstLaunch(true)
+                    preferencesDataStore.setFirstLaunch(false)
                 }
 
                 amplitudeAnalytics.logEvent(
