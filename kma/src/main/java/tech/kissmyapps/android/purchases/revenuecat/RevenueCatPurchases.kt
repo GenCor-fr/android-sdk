@@ -60,10 +60,6 @@ internal class RevenueCatPurchases(
             purchases.setAppsflyerID(configuration.appsFlyerUID)
         }
 
-        if (!configuration.fbAnonymousID.isNullOrBlank()) {
-            purchases.setFBAnonymousID(configuration.fbAnonymousID)
-        }
-
         if (!configuration.appUserId.isNullOrBlank()) {
             purchases.setAttributes(mapOf("\$amplitudeUserId" to configuration.appUserId))
         }

@@ -7,7 +7,6 @@ internal data class RevenueCatConfiguration @JvmOverloads internal constructor(
     internal val apiKey: String,
     internal val appUserId: String? = null,
     internal val appsFlyerUID: String? = null,
-    internal val fbAnonymousID: String? = null,
     internal val amplitudeUserId: String? = null,
     internal val syncPurchases: Boolean = true,
 ) {
@@ -16,7 +15,6 @@ internal data class RevenueCatConfiguration @JvmOverloads internal constructor(
         builder.apiKey,
         builder.appUserId,
         builder.appsFlyerUID,
-        builder.fbAnonymousID,
         builder.amplitudeUserId,
         builder.syncPurchases,
     )
@@ -27,7 +25,6 @@ internal data class RevenueCatConfiguration @JvmOverloads internal constructor(
     ) {
         internal var appUserId: String? = null
         internal var appsFlyerUID: String? = null
-        internal var fbAnonymousID: String? = null
         internal var amplitudeUserId: String? = null
         internal var syncPurchases: Boolean = true
 
@@ -37,10 +34,6 @@ internal data class RevenueCatConfiguration @JvmOverloads internal constructor(
 
         fun setAppsFlyerUID(appsFlyerUID: String?) = apply {
             this.appsFlyerUID = appsFlyerUID
-        }
-
-        fun setFbAnonymousID(fbAnonymousID: String?) = apply {
-            this.fbAnonymousID = fbAnonymousID
         }
 
         fun setAmplitudeUserId(amplitudeUserId: String?) = apply {

@@ -61,7 +61,6 @@ dependencies {
 
     implementation("com.amplitude:analytics-android:1.12.2")
     implementation("com.appsflyer:af-android-sdk:6.13.0")
-    implementation("com.facebook.android:facebook-core:16.0.1")
 
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 

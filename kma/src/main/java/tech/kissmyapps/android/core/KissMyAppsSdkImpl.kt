@@ -20,7 +20,6 @@ import tech.kissmyapps.android.KissMyAppsSdk
 import tech.kissmyapps.android.analytics.Analytics
 import tech.kissmyapps.android.analytics.af.AppsFlyerAnalytics
 import tech.kissmyapps.android.analytics.amplitude.AmplitudeAnalytics
-import tech.kissmyapps.android.analytics.facebook.FacebookAnalytics
 import tech.kissmyapps.android.analytics.firebase.FirebaseAnalytics
 import tech.kissmyapps.android.appupdates.AppUpdateManager
 import tech.kissmyapps.android.attribution.AttributionClient
@@ -44,7 +43,7 @@ import tech.kissmyapps.android.purchases.revenuecat.RevenueCatConfiguration
 import tech.kissmyapps.android.purchases.revenuecat.RevenueCatPurchases
 import timber.log.Timber
 
-internal class KissMyAppsSdkImpl constructor(
+internal class KissMyAppsSdkImpl(
     private val applicationContext: Context,
     override val purchases: Purchases,
     firebaseAnalytics: FirebaseAnalytics,
@@ -52,7 +51,6 @@ internal class KissMyAppsSdkImpl constructor(
     private val firebaseRemoteConfig: FirebaseRemoteConfig,
     private val amplitudeAnalytics: AmplitudeAnalytics,
     private val appsFlyerAnalytics: AppsFlyerAnalytics,
-    private val facebookAnalytics: FacebookAnalytics,
     private val configuration: KissMyAppsConfiguration,
     private val attributionClient: AttributionClient,
     private val preferencesDataStore: PreferencesDataStore,
@@ -71,7 +69,6 @@ internal class KissMyAppsSdkImpl constructor(
         if (appsFlyerUID != null) {
             amplitudeAnalytics.setUserId(appsFlyerUID)
             firebaseAnalytics.setUserId(appsFlyerUID)
-            facebookAnalytics.setUserId(appsFlyerUID)
         }
     }
 
@@ -331,11 +328,6 @@ internal class KissMyAppsSdkImpl constructor(
                 applicationContext = configuration.context,
             )
 
-            val facebookAnalytics = FacebookAnalytics(
-                configuration.facebookConfiguration,
-                configuration.context
-            )
-
             val purchaseLogger = TLMPurchaseEventLogger(
                 Database.getInstance(configuration.context).purchasesDao(),
                 attributionClient,
@@ -350,14 +342,12 @@ internal class KissMyAppsSdkImpl constructor(
                     )
                         .setAppUserId(appsFlyerAnalytics.appsFlyerUID)
                         .setAppsFlyerUID(appsFlyerAnalytics.appsFlyerUID)
-                        .setFbAnonymousID(facebookAnalytics.getAnonymousID())
                         .build(),
                     dataStore = PurchasesPreferencesDataStore.create(configuration.context)
                 ),
                 appsFlyerAnalytics = appsFlyerAnalytics,
                 firebaseAnalytics = FirebaseAnalytics(),
                 amplitudeAnalytics = amplitudeAnalytics,
-                facebookAnalytics = facebookAnalytics,
                 tlmPurchaseLogger = purchaseLogger,
             )
 
@@ -367,7 +357,6 @@ internal class KissMyAppsSdkImpl constructor(
                 appUpdateManager = AppUpdateManager(configuration.context),
                 firebaseRemoteConfig = FirebaseRemoteConfig(configuration.remoteConfigDefaults),
                 attributionClient = attributionClient,
-                facebookAnalytics = facebookAnalytics,
                 amplitudeAnalytics = amplitudeAnalytics,
                 appsFlyerAnalytics = appsFlyerAnalytics,
                 purchases = purchases,

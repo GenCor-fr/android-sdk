@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import tech.kissmyapps.android.analytics.af.AppsFlyerAnalytics
 import tech.kissmyapps.android.analytics.amplitude.AmplitudeAnalytics
-import tech.kissmyapps.android.analytics.facebook.FacebookAnalytics
 import tech.kissmyapps.android.analytics.firebase.FirebaseAnalytics
 import tech.kissmyapps.android.core.AnalyticsEvents.PURCHASE_ERROR
 import tech.kissmyapps.android.core.AnalyticsProperties.ACTIVE_SUBS
@@ -23,7 +22,6 @@ internal class PurchasesFacade(
     private val appsFlyerAnalytics: AppsFlyerAnalytics,
     private val firebaseAnalytics: FirebaseAnalytics,
     private val amplitudeAnalytics: AmplitudeAnalytics,
-    private val facebookAnalytics: FacebookAnalytics,
     private val tlmPurchaseLogger: TLMPurchaseEventLogger,
     coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) : Purchases by purchases {
