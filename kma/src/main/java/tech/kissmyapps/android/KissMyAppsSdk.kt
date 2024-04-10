@@ -36,6 +36,8 @@ interface KissMyAppsSdk {
      */
     fun getConfigurationResult(): ConfigurationResult?
 
+    fun getUserId(): String?
+
     companion object {
         @Volatile
         private var INSTANCE: KissMyAppsSdk? = null

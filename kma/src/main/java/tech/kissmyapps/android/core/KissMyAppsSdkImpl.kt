@@ -85,6 +85,10 @@ internal class KissMyAppsSdkImpl(
         return configurationResult
     }
 
+    override fun getUserId(): String? {
+        return appsFlyerAnalytics.appsFlyerUID
+    }
+
     private suspend fun getConfigurationResult(isFirstLaunch: Boolean?): ConfigurationResult {
         return withContext(coroutineDispatcher) {
             measureTime("CONFIGURATION") {
