@@ -332,10 +332,15 @@ internal class KissMyAppsSdkImpl(
                 applicationContext = configuration.context,
             )
 
+
             val purchaseLogger = TLMPurchaseEventLogger(
-                Database.getInstance(configuration.context).purchasesDao(),
-                attributionClient,
-                AttributionService.create(configuration.attributionApiKey, false)
+                appsFlyerUID = appsFlyerAnalytics.appsFlyerUID,
+                purchasesDao = Database.getInstance(configuration.context).purchasesDao(),
+                attributionClient = attributionClient,
+                attributionService = AttributionService.create(
+                    apiKey = configuration.attributionApiKey,
+                    isLoggingEnabled = false
+                )
             )
 
             val purchases = PurchasesFacade(

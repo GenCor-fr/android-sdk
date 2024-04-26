@@ -21,6 +21,7 @@ import tech.kissmyapps.android.purchases.model.Purchase
 import timber.log.Timber
 
 internal class TLMPurchaseEventLogger(
+    private val appsFlyerUID: String?,
     private val purchasesDao: PurchasesDao,
     private val attributionClient: AttributionClient,
     private val attributionService: AttributionService,
@@ -101,8 +102,8 @@ internal class TLMPurchaseEventLogger(
             SUBS -> {
                 attributionService.sendSubscriptionPurchase(
                     SubscribeRequestBody(
-                        userId = attributionInfo.uuid,
-                        uuid = attributionInfo.userId,
+                        userId = appsFlyerUID ?: attributionInfo.userId,
+                        uuid = attributionInfo.uuid,
                         productId = purchaseEntity.productId,
                         purchaseId = purchaseEntity.purchaseToken
                     )
@@ -112,8 +113,8 @@ internal class TLMPurchaseEventLogger(
             INAPP -> {
                 attributionService.sendInAppPurchase(
                     InAppRequestBody(
-                        userId = attributionInfo.uuid,
-                        uuid = attributionInfo.userId,
+                        userId = appsFlyerUID ?: attributionInfo.userId,
+                        uuid = attributionInfo.uuid,
                         productId = purchaseEntity.productId,
                         purchaseId = purchaseEntity.purchaseToken,
                         paymentDetails = InAppRequestBody.PaymentDetails(
