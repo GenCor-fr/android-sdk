@@ -40,22 +40,26 @@ internal class TLMPurchaseEventLogger(
     }
 
     private suspend fun logPurchaseInternal(purchase: Purchase) {
-        val attributionInfo = attributionClient.getAttributionInfo() ?: return
+        val attributionInfo = attributionClient.getAttributionInfo()
+
+        val entity = PurchaseEntity(
+            productId = purchase.product.id,
+            productType = when (purchase.product.type) {
+                ProductType.SUBS -> SUBS
+                ProductType.INAPP -> INAPP
+            },
+            purchaseToken = purchase.purchaseToken,
+            price = purchase.price.amount,
+            currency = purchase.price.currencyCode
+        )
+
+        if (attributionInfo == null) {
+            purchasesDao.insert(entity)
+            return
+        }
 
         try {
-            val entity = PurchaseEntity(
-                productId = purchase.product.id,
-                productType = when (purchase.product.type) {
-                    ProductType.SUBS -> SUBS
-                    ProductType.INAPP -> INAPP
-                },
-                purchaseToken = purchase.purchaseToken,
-                price = purchase.price.amount,
-                currency = purchase.price.currencyCode
-            )
-
             purchasesDao.insert(entity)
-
             sendPurchase(attributionInfo, entity)
 
             Timber.d("The $purchase has been successfully submitted.")
