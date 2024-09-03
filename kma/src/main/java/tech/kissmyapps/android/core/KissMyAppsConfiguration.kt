@@ -7,7 +7,5 @@ class KissMyAppsConfiguration(
     val context: Context,
     val appsFlyerDevKey: String,
     val amplitudeApiKey: String,
-    val revenueCatApiKey: String,
-    val attributionApiKey: String,
     val remoteConfigDefaults: RemoteConfigDefaults,
 )
