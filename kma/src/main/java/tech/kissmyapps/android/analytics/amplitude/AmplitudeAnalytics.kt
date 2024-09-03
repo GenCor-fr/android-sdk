@@ -7,7 +7,6 @@ import tech.kissmyapps.android.analytics.Analytics
 import tech.kissmyapps.android.analytics.AnalyticsEvent
 import tech.kissmyapps.android.core.AnalyticsEvents
 import tech.kissmyapps.android.core.AnalyticsProperties
-import tech.kissmyapps.android.purchases.model.Purchase
 import timber.log.Timber
 import java.util.Calendar
 
@@ -31,21 +30,6 @@ internal class AmplitudeAnalytics(
 
     override fun logEvent(event: AnalyticsEvent) {
         logEvent(event.type, event.properties)
-    }
-
-    internal fun logPurchase(purchase: Purchase) {
-        if (purchase.price.amountMicros == 0L) {
-            logEvent(AnalyticsEvents.TRIAL_STARTED)
-        } else {
-            logEvent(
-                event = AnalyticsEvents.PURCHASE,
-                properties = mapOf(
-                    "productId" to purchase.product.id,
-                    "price" to purchase.price.amount,
-                    "currency" to purchase.price.currencyCode,
-                )
-            )
-        }
     }
 
     fun flush() {

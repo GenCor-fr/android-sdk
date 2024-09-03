@@ -12,7 +12,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
@@ -22,8 +21,6 @@ import tech.kissmyapps.android.analytics.af.AppsFlyerAnalytics
 import tech.kissmyapps.android.analytics.amplitude.AmplitudeAnalytics
 import tech.kissmyapps.android.analytics.firebase.FirebaseAnalytics
 import tech.kissmyapps.android.appupdates.AppUpdateManager
-import tech.kissmyapps.android.attribution.AttributionClient
-import tech.kissmyapps.android.attribution.network.AttributionService
 import tech.kissmyapps.android.common.measureTime
 import tech.kissmyapps.android.config.FirebaseRemoteConfig
 import tech.kissmyapps.android.config.RemoteConfig
@@ -33,26 +30,16 @@ import tech.kissmyapps.android.core.model.AttributionData
 import tech.kissmyapps.android.core.model.ConfigurationResult
 import tech.kissmyapps.android.core.model.MediaSource
 import tech.kissmyapps.android.data.PreferencesDataStore
-import tech.kissmyapps.android.database.Database
-import tech.kissmyapps.android.purchases.Purchases
-import tech.kissmyapps.android.purchases.PurchasesFacade
-import tech.kissmyapps.android.purchases.PurchasesPreferencesDataStore
-import tech.kissmyapps.android.purchases.logger.TLMPurchaseEventLogger
-import tech.kissmyapps.android.purchases.model.CustomerInfo
-import tech.kissmyapps.android.purchases.revenuecat.RevenueCatConfiguration
-import tech.kissmyapps.android.purchases.revenuecat.RevenueCatPurchases
 import timber.log.Timber
 
 internal class KissMyAppsSdkImpl(
     private val applicationContext: Context,
-    override val purchases: Purchases,
     firebaseAnalytics: FirebaseAnalytics,
     private val appUpdateManager: AppUpdateManager,
     private val firebaseRemoteConfig: FirebaseRemoteConfig,
     private val amplitudeAnalytics: AmplitudeAnalytics,
     private val appsFlyerAnalytics: AppsFlyerAnalytics,
     private val configuration: KissMyAppsConfiguration,
-    private val attributionClient: AttributionClient,
     private val preferencesDataStore: PreferencesDataStore,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : KissMyAppsSdk {
@@ -92,7 +79,6 @@ internal class KissMyAppsSdkImpl(
     private suspend fun getConfigurationResult(isFirstLaunch: Boolean?): ConfigurationResult {
         return withContext(coroutineDispatcher) {
             measureTime("CONFIGURATION") {
-
                 val isFirstAppLaunch = isFirstLaunch != false
                         && preferencesDataStore.isFirstLaunch()
 
@@ -108,27 +94,17 @@ internal class KissMyAppsSdkImpl(
                     properties = mapOf("first_launch" to isFirstLaunch)
                 )
 
-                applicationScope.launch {
-                    attributionClient.getAttributionInfo()
-                }
-
                 val remoteConfigsDeferred = getRemoteConfigs()
 
                 val attributionDeferred = async {
                     getAttributionData()
                 }
 
-                val customerInfoDeferred = getCustomerInfo()
-
                 val attributionData = attributionDeferred.await()
                 Timber.d(attributionData.toString())
 
                 val remoteConfigs = withTimeoutOrNull(MAX_TIMEOUT_IN_MILLIS) {
                     remoteConfigsDeferred.await()
-                }
-
-                val customerInfo = withTimeoutOrNull(MAX_TIMEOUT_IN_MILLIS) {
-                    customerInfoDeferred.await()
                 }
 
                 val mediaSource = MediaSource.fromRawValue(attributionData?.mediaSource)
@@ -150,7 +126,6 @@ internal class KissMyAppsSdkImpl(
                 configurationResult = ConfigurationResult(
                     activePaywall = paywall,
                     mediaSource = mediaSource,
-                    customerInfo = customerInfo
                 )
 
                 Timber.d("Finished with $configurationResult.")
@@ -208,19 +183,6 @@ internal class KissMyAppsSdkImpl(
                 )
 
                 configs
-            }
-        }
-    }
-
-    private fun getCustomerInfo(): Deferred<CustomerInfo?> {
-        return applicationScope.async {
-            measureTime("Customer info") {
-                try {
-                    val result = purchases.getCustomerInfo()
-                    result
-                } catch (e: Throwable) {
-                    null
-                }
             }
         }
     }
@@ -316,12 +278,6 @@ internal class KissMyAppsSdkImpl(
         const val MAX_TIMEOUT_IN_MILLIS = 6_500L
 
         fun create(configuration: KissMyAppsConfiguration): KissMyAppsSdk {
-            val attributionClient = AttributionClient.create(
-                configuration.context,
-                configuration.attributionApiKey,
-                configuration.appsFlyerDevKey
-            )
-
             val amplitudeAnalytics = AmplitudeAnalytics(
                 context = configuration.context,
                 apiKey = configuration.amplitudeApiKey
@@ -332,43 +288,13 @@ internal class KissMyAppsSdkImpl(
                 applicationContext = configuration.context,
             )
 
-
-            val purchaseLogger = TLMPurchaseEventLogger(
-                appsFlyerUID = appsFlyerAnalytics.appsFlyerUID,
-                purchasesDao = Database.getInstance(configuration.context).purchasesDao(),
-                attributionClient = attributionClient,
-                attributionService = AttributionService.create(
-                    apiKey = configuration.attributionApiKey,
-                    isLoggingEnabled = false
-                )
-            )
-
-            val purchases = PurchasesFacade(
-                purchases = RevenueCatPurchases(
-                    configuration = RevenueCatConfiguration.Builder(
-                        configuration.context,
-                        configuration.revenueCatApiKey
-                    )
-                        .setAppUserId(appsFlyerAnalytics.appsFlyerUID)
-                        .setAppsFlyerUID(appsFlyerAnalytics.appsFlyerUID)
-                        .build(),
-                    dataStore = PurchasesPreferencesDataStore.create(configuration.context)
-                ),
-                appsFlyerAnalytics = appsFlyerAnalytics,
-                firebaseAnalytics = FirebaseAnalytics(),
-                amplitudeAnalytics = amplitudeAnalytics,
-                tlmPurchaseLogger = purchaseLogger,
-            )
-
             return KissMyAppsSdkImpl(
                 applicationContext = configuration.context,
                 firebaseAnalytics = FirebaseAnalytics(),
                 appUpdateManager = AppUpdateManager(configuration.context),
                 firebaseRemoteConfig = FirebaseRemoteConfig(configuration.remoteConfigDefaults),
-                attributionClient = attributionClient,
                 amplitudeAnalytics = amplitudeAnalytics,
                 appsFlyerAnalytics = appsFlyerAnalytics,
-                purchases = purchases,
                 configuration = configuration,
                 preferencesDataStore = PreferencesDataStore(configuration.context)
             )

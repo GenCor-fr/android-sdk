@@ -9,14 +9,12 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import tech.kissmyapps.android.analytics.AnalyticsEvent
 import tech.kissmyapps.android.analytics.EventLogger
-import tech.kissmyapps.android.purchases.logger.PurchaseEventLogger
-import tech.kissmyapps.android.purchases.model.Purchase
 import timber.log.Timber
 
 class AppsFlyerAnalytics(
     devKey: String,
     private val applicationContext: Context
-) : EventLogger, PurchaseEventLogger {
+) : EventLogger {
     private val appsFlyer = AppsFlyerLib.getInstance()
 
     private val conversionDataFlow = MutableStateFlow<Map<String, Any?>?>(null)
@@ -67,14 +65,6 @@ class AppsFlyerAnalytics(
 
     override fun logEvent(event: AnalyticsEvent) {
         logEvent(event.type, event.properties)
-    }
-
-    override fun logPurchase(purchase: Purchase) {
-        if (purchase.price.amountMicros == 0L) {
-            logEvent(AFInAppEventType.START_TRIAL)
-        } else {
-            logEvent(AFInAppEventType.PURCHASE, mapOf("productId" to purchase.product.id))
-        }
     }
 
     internal suspend fun awaitConversionData(): Map<String, Any?>? {

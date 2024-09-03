@@ -1,13 +1,11 @@
 package tech.kissmyapps.android
 
-import com.revenuecat.purchases.Purchases.Companion.configure
 import tech.kissmyapps.android.analytics.Analytics
 import tech.kissmyapps.android.common.ConfigureStrings
 import tech.kissmyapps.android.config.RemoteConfig
 import tech.kissmyapps.android.core.KissMyAppsConfiguration
 import tech.kissmyapps.android.core.KissMyAppsSdkImpl
 import tech.kissmyapps.android.core.model.ConfigurationResult
-import tech.kissmyapps.android.purchases.Purchases
 
 interface KissMyAppsSdk {
     /**
@@ -19,11 +17,6 @@ interface KissMyAppsSdk {
      * Instance of Firebase Remote Config.
      */
     val remoteConfig: RemoteConfig
-
-    /**
-     * Instance of purchases with RevenueCat under the hood.
-     */
-    val purchases: Purchases
 
     /**
      * Starts the SDK.
