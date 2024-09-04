@@ -27,26 +27,7 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-
-    buildTypes {
-        debug {
-        }
-
-        create("develop") {
-        }
-
-        release {
-            isMinifyEnabled = true
-
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
 }
-
-//apply(from = "$projectDir/gradle-mvn-publish.gradle")
 
 dependencies {
     api("androidx.fragment:fragment-ktx:1.8.2")
