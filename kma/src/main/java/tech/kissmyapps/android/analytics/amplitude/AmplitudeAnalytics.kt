@@ -5,7 +5,6 @@ import com.amplitude.android.Amplitude
 import com.amplitude.core.events.Identify
 import tech.kissmyapps.android.analytics.Analytics
 import tech.kissmyapps.android.analytics.AnalyticsEvent
-import tech.kissmyapps.android.core.AnalyticsEvents
 import tech.kissmyapps.android.core.AnalyticsProperties
 import timber.log.Timber
 import java.util.Calendar
@@ -15,7 +14,6 @@ internal class AmplitudeAnalytics(
     apiKey: String
 ) : Analytics {
     private val amplitude = Amplitude(apiKey, context) {
-        defaultTracking.sessions = true
         minTimeBetweenSessionsMillis = 0
     }
 
