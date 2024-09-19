@@ -17,6 +17,7 @@ import com.google.android.play.core.install.model.ActivityResult
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import timber.log.Timber
+import kotlin.system.exitProcess
 
 class AppUpdateManager(context: Context) {
     private var _activity: Activity? = null
@@ -91,7 +92,8 @@ class AppUpdateManager(context: Context) {
             ActivityResultContracts.StartIntentSenderForResult()
         ) { activityResult ->
             if (activityResult.resultCode == RESULT_CANCELED) {
-                activity.finish()
+                activity.finishAffinity()
+                exitProcess(0)
             } else if (activityResult.resultCode == ActivityResult.RESULT_IN_APP_UPDATE_FAILED) {
                 requestAppUpdateInfo()
             }
