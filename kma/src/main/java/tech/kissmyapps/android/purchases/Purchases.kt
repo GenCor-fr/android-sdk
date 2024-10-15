@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import tech.kissmyapps.android.purchases.model.CustomerInfo
 import tech.kissmyapps.android.purchases.model.Product
 import tech.kissmyapps.android.purchases.model.Purchase
+import tech.kissmyapps.android.purchases.revenuecat.PurchaseConfig
 
 interface Purchases {
     /**
@@ -36,6 +37,9 @@ interface Purchases {
 
     @Throws(PurchasesException::class)
     suspend fun purchase(activity: Activity, productId: String): Purchase
+
+    @Throws(PurchasesException::class)
+    suspend fun purchase(activity: Activity, purchaseConfig: PurchaseConfig): Purchase
 
     @Throws(PurchasesException::class)
     suspend fun restorePurchases(): CustomerInfo

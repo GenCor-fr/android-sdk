@@ -52,7 +52,7 @@ internal class RevenueCatPurchases(
             .appUserID(configuration.appUserId)
             .build()
     )
-    
+
     init {
         purchases.collectDeviceIdentifiers()
 
@@ -94,6 +94,37 @@ internal class RevenueCatPurchases(
             purchases
                 .awaitGetProducts(productIds)
                 .map { storeProduct -> storeProduct.toProduct() }
+        } catch (e: Throwable) {
+            Timber.e(e)
+            throw e.toPurchasesException()
+        }
+    }
+
+    override suspend fun purchase(activity: Activity, purchaseConfig: PurchaseConfig): Purchase {
+        return try {
+            val storeProduct = purchases.awaitGetProducts(listOf(purchaseConfig.productId)).first()
+
+            val subscriptionOption = when (purchaseConfig.subscriptionPlan) {
+                SubscriptionPlan.BASE_PLAN -> storeProduct.subscriptionOptions?.basePlan
+                SubscriptionPlan.FREE_TRIAL -> storeProduct.subscriptionOptions?.freeTrial
+                else -> null
+            }
+
+            val result = if (subscriptionOption != null) {
+                purchases.awaitPurchase(
+                    PurchaseParams.Builder(activity, subscriptionOption).build()
+                )
+            } else {
+                purchases.awaitPurchase(
+                    PurchaseParams.Builder(activity, storeProduct).build()
+                )
+            }
+
+            Purchase(
+                product = storeProduct.toProduct(),
+                purchaseToken = result.storeTransaction.purchaseToken,
+                subscriptionOptionId = result.storeTransaction.subscriptionOptionId,
+            )
         } catch (e: Throwable) {
             Timber.e(e)
             throw e.toPurchasesException()
