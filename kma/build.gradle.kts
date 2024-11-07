@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "tech.kissmyapps.android"
-    compileSdk = 34
+    compileSdk = 35
 
     buildFeatures {
         buildConfig = true
@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    api("androidx.fragment:fragment-ktx:1.8.3")
+    api("androidx.fragment:fragment-ktx:1.8.5")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
@@ -39,7 +39,7 @@ dependencies {
 
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 
-    implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-config-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
@@ -50,7 +50,7 @@ dependencies {
 
     implementation("com.android.installreferrer:installreferrer:2.2")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
