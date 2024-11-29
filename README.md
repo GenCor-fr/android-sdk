@@ -4,7 +4,7 @@
 
 Run following command in your project terminal:
 ```
-git submodule add https://git.netpeak.net/monti_sdl/Laguna_Mobile/kma-android-sdk.git
+git submodule add https://github.com/GenCor-fr/android-sdk.git
 ```
 
 ```gradle.kts
